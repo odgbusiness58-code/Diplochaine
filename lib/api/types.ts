@@ -30,11 +30,13 @@ export interface Diploma {
   id: string;
   university: number | University;
   student_full_name: string;
-  student_birth_date: string;
+  student_birth_date?: string;
   student_id_number?: string;
-  diploma_title: string;
+  diploma_title?: string;
+  degree_title?: string;
   field_of_study?: string;
-  graduation_date: string;
+  graduation_date?: string;
+  graduation_year?: number;
   mention?: string;
   status: DiplomaStatus;
   hash?: string;

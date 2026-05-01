@@ -41,8 +41,22 @@ function statusTone(s: Diploma["status"]) {
 function statusLabel(s: Diploma["status"]) {
   return s === "signed" ? "Signé" : s === "revoked" ? "Révoqué" : "Brouillon";
 }
-function fmt(d: string) {
-  return new Date(d).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" });
+function fmt(d?: string | number | null) {
+  if (!d) return "—";
+  if (typeof d === "number") return String(d);
+  const dt = new Date(d);
+  if (isNaN(dt.getTime())) return String(d);
+  return dt.toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+function getGraduationDisplay(diploma: Diploma) {
+  if (diploma.graduation_year) return String(diploma.graduation_year);
+  if (diploma.graduation_date) return fmt(diploma.graduation_date);
+  return "—";
+}
+
+function getDiplomaTitle(diploma: Diploma) {
+  return diploma.degree_title ?? diploma.diploma_title ?? "—";
 }
 
 // ─── Issue form ─────────────────────────────────────────────────────────────
@@ -280,7 +294,7 @@ function DiplomaRow({ diploma, onRevoke }: { diploma: Diploma; onRevoke: (id: st
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-slate-900 truncate">{diploma.student_full_name}</p>
-          <p className="text-sm text-slate-500 truncate">{diploma.diploma_title}</p>
+          <p className="text-sm text-slate-500 truncate">{getDiplomaTitle(diploma)}</p>
         </div>
         <Badge tone={statusTone(diploma.status)}>{statusLabel(diploma.status)}</Badge>
         <span className="text-slate-400 ml-2">
@@ -320,6 +334,10 @@ function DiplomaRow({ diploma, onRevoke }: { diploma: Diploma; onRevoke: (id: st
                 <p className="font-medium text-slate-800">{diploma.student_id_number}</p>
               </div>
             )}
+            <div>
+                <p className="text-xs text-slate-400 mb-0.5">Année obtention</p>
+                <p className="font-medium text-slate-800">{getGraduationDisplay(diploma)}</p>
+              </div>
             {diploma.issued_at && (
               <div>
                 <p className="text-xs text-slate-400 mb-0.5">Émis le</p>
