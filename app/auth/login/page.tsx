@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
-import { Loader2, LogIn } from "lucide-react";
+import { CheckCircle2, Loader2, LogIn, XCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -18,22 +18,31 @@ function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setSuccess(false);
     setSubmitting(true);
 
     try {
       await login({ email, password });
+      setSuccess(true);
       const next = searchParams.get("next") ?? "/etablissement";
-      router.push(next);
+      setTimeout(() => router.push(next), 1200);
     } catch (err) {
       if (err instanceof ApiError) {
-        setError(err.message || "Identifiants invalides.");
+        if (err.status === 401) {
+          setError("Email ou mot de passe incorrect.");
+        } else if (err.status === 0 || err.message.toLowerCase().includes("network") || err.message.toLowerCase().includes("réseau")) {
+          setError("Erreur réseau. Vérifiez votre connexion et réessayez.");
+        } else {
+          setError(err.message || "Identifiants invalides.");
+        }
       } else {
-        setError("Une erreur réseau est survenue. Réessayez.");
+        setError("Erreur réseau. Vérifiez votre connexion et réessayez.");
       }
     } finally {
       setSubmitting(false);
@@ -51,6 +60,7 @@ function LoginForm() {
         onChange={(e) => setEmail(e.target.value)}
         placeholder="contact@usta.bf"
         autoComplete="email"
+        disabled={success}
       />
       <Input
         label="Mot de passe"
@@ -61,19 +71,35 @@ function LoginForm() {
         onChange={(e) => setPassword(e.target.value)}
         placeholder="••••••••"
         autoComplete="current-password"
+        disabled={success}
       />
 
-      {error && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-          {error}
-        </p>
+      {success && (
+        <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5">
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+          <p className="text-sm font-medium text-emerald-700">
+            Connexion réussie ! Redirection en cours…
+          </p>
+        </div>
       )}
 
-      <Button type="submit" fullWidth size="lg" disabled={submitting}>
+      {error && (
+        <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5">
+          <XCircle className="h-4 w-4 shrink-0 text-red-500" />
+          <p className="text-sm text-red-700">{error}</p>
+        </div>
+      )}
+
+      <Button type="submit" fullWidth size="lg" disabled={submitting || success}>
         {submitting ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
             Connexion…
+          </>
+        ) : success ? (
+          <>
+            <CheckCircle2 className="h-4 w-4" />
+            Connecté
           </>
         ) : (
           "Se connecter"

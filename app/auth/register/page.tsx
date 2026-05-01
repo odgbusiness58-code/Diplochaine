@@ -3,16 +3,26 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Loader2, UserPlus } from "lucide-react";
+import { CheckCircle2, Loader2, UserPlus, XCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { ApiError } from "@/lib/api/types";
-import { useAuth } from "@/lib/auth/context";
+import { authApi } from "@/lib/api/auth";
+
+const FIELD_LABELS: Record<string, string> = {
+  email: "Email",
+  password: "Mot de passe",
+  password_confirm: "Confirmation du mot de passe",
+  name: "Nom de l'établissement",
+  acronym: "Acronyme",
+  country: "Pays",
+  city: "Ville",
+  website: "Site web",
+};
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register } = useAuth();
 
   const [form, setForm] = useState({
     name: "",
@@ -25,6 +35,7 @@ export default function RegisterPage() {
     password_confirm: "",
   });
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const update = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -45,21 +56,32 @@ export default function RegisterPage() {
 
     setSubmitting(true);
     try {
-      await register(form);
-      router.push("/etablissement?welcome=1");
+      await authApi.register({
+        name: form.name,
+        acronym: form.acronym || undefined,
+        country: form.country,
+        city: form.city || undefined,
+        website: form.website || undefined,
+        email: form.email,
+        password: form.password,
+        password_confirm: form.password_confirm,
+      });
+      setSuccess(true);
+      setTimeout(() => router.push("/auth/login"), 2500);
     } catch (err) {
       if (err instanceof ApiError) {
         const data = err.data as Record<string, unknown> | null;
         if (data && typeof data === "object") {
           const firstKey = Object.keys(data)[0];
           const value = data[firstKey];
-          const msg = Array.isArray(value) ? String(value[0]) : String(value ?? err.message);
-          setError(`${firstKey}: ${msg}`);
+          const rawMsg = Array.isArray(value) ? String(value[0]) : String(value ?? err.message);
+          const label = FIELD_LABELS[firstKey] ?? firstKey;
+          setError(`${label} : ${rawMsg}`);
         } else {
-          setError(err.message || "Erreur d'enregistrement.");
+          setError(err.message || "Erreur lors de la création du compte.");
         }
       } else {
-        setError("Erreur réseau. Réessayez.");
+        setError("Erreur réseau. Vérifiez votre connexion et réessayez.");
       }
     } finally {
       setSubmitting(false);
@@ -146,17 +168,32 @@ export default function RegisterPage() {
           />
         </div>
 
-        {error && (
-          <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-            {error}
-          </p>
+        {success && (
+          <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5">
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+            <p className="text-sm font-medium text-emerald-700">
+              Compte créé avec succès ! Redirection vers la connexion…
+            </p>
+          </div>
         )}
 
-        <Button type="submit" fullWidth size="lg" disabled={submitting}>
+        {error && (
+          <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5">
+            <XCircle className="h-4 w-4 shrink-0 text-red-500" />
+            <p className="text-sm text-red-700">{error}</p>
+          </div>
+        )}
+
+        <Button type="submit" fullWidth size="lg" disabled={submitting || success}>
           {submitting ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
               Création du compte…
+            </>
+          ) : success ? (
+            <>
+              <CheckCircle2 className="h-4 w-4" />
+              Compte créé
             </>
           ) : (
             "Créer le compte"
