@@ -46,19 +46,19 @@ function fmt(d: string) {
 }
 
 // ─── Issue form ─────────────────────────────────────────────────────────────
-const emptyForm: IssueDiplomaPayload = {
+const emptyForm = {
   student_first_name: "",
   student_last_name: "",
   student_birth_date: "",
   student_id_number: "",
   degree_title: "",
   field_of_study: "",
-  graduation_date: "",
+  graduation_year: new Date().getFullYear(),
   mention: "",
 };
 
 function IssueModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (d: Diploma) => void }) {
-  const [form, setForm] = useState<IssueDiplomaPayload>(emptyForm);
+  const [form, setForm] = useState(emptyForm);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -75,7 +75,7 @@ function IssueModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (d
         student_last_name: form.student_last_name.trim(),
         student_birth_date: form.student_birth_date,
         degree_title: form.degree_title.trim(),
-        graduation_date: form.graduation_date,
+        graduation_year: Number(form.graduation_year),
         ...(form.student_id_number?.trim() ? { student_id_number: form.student_id_number.trim() } : {}),
         ...(form.field_of_study?.trim() ? { field_of_study: form.field_of_study.trim() } : {}),
         ...(form.mention?.trim() ? { mention: form.mention.trim() } : {}),
@@ -197,13 +197,18 @@ function IssueModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (d
                   </select>
                 </div>
               </div>
-              <Input
-                label="Date d'obtention"
-                type="date"
-                required
-                value={form.graduation_date}
-                onChange={update("graduation_date")}
-              />
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium text-slate-700">Année d&apos;obtention</label>
+                <input
+                  type="number"
+                  required
+                  min={1950}
+                  max={new Date().getFullYear()}
+                  value={form.graduation_year}
+                  onChange={(e) => setForm((s) => ({ ...s, graduation_year: parseInt(e.target.value) || s.graduation_year }))}
+                  className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                />
+              </div>
             </div>
           </div>
 

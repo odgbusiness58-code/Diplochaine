@@ -53,7 +53,7 @@ export interface IssueDiplomaPayload {
   student_id_number?: string;
   degree_title: string;
   field_of_study?: string;
-  graduation_date: string;
+  graduation_year: number;
   mention?: string;
 }
 
