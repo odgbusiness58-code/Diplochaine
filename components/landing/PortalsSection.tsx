@@ -6,6 +6,7 @@ import { SectionHeader } from "./SectionHeader";
 const portals = [
   {
     href: "/auth/login",
+    external: false,
     icon: GraduationCap,
     title: "Établissements",
     desc: "Émettez et signez vos diplômes avec une cryptographie de bout en bout.",
@@ -14,6 +15,7 @@ const portals = [
   },
   {
     href: "/verifier",
+    external: false,
     icon: Search,
     title: "Vérification publique",
     desc: "Vérifiez l'authenticité d'un diplôme par identifiant ou fichier PDF.",
@@ -21,11 +23,12 @@ const portals = [
     accent: "from-emerald-500 to-teal-600",
   },
   {
-    href: "/recruteur",
+    href: "https://github.com/NockiProgramTECH/DiploChaineVerify",
+    external: true,
     icon: Smartphone,
     title: "App recruteurs",
-    desc: "Application mobile pour scanner un QR code en entretien.",
-    cta: "Ouvrir l'app",
+    desc: "Application mobile Flutter pour scanner un QR code en entretien.",
+    cta: "Voir l'application",
     accent: "from-amber-500 to-orange-600",
   },
 ];
@@ -40,30 +43,33 @@ export function PortalsSection() {
         />
 
         <div className="mt-12 grid gap-6 lg:grid-cols-3">
-          {portals.map(({ href, icon: Icon, title, desc, cta, accent }) => (
-            <Link
-              key={href}
-              href={href}
-              className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
-            >
-              <div
-                className={`absolute -right-6 -top-6 h-28 w-28 rounded-full bg-gradient-to-br ${accent} opacity-15 blur-2xl transition-opacity group-hover:opacity-30`}
-              />
-              <div
-                className={`relative inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${accent} text-white shadow-md`}
-              >
-                <Icon className="h-6 w-6" />
-              </div>
-              <h3 className="relative mt-5 text-xl font-semibold text-slate-900">
-                {title}
-              </h3>
-              <p className="relative mt-2 text-sm text-slate-600">{desc}</p>
-              <span className="relative mt-6 inline-flex items-center gap-1 text-sm font-semibold text-blue-600 group-hover:text-blue-700">
-                {cta}
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </span>
-            </Link>
-          ))}
+          {portals.map(({ href, external, icon: Icon, title, desc, cta, accent }) => {
+            const className = "group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-xl";
+            const content = (
+              <>
+                <div className={`absolute -right-6 -top-6 h-28 w-28 rounded-full bg-gradient-to-br ${accent} opacity-15 blur-2xl transition-opacity group-hover:opacity-30`} />
+                <div className={`relative inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${accent} text-white shadow-md`}>
+                  <Icon className="h-6 w-6" />
+                </div>
+                <h3 className="relative mt-5 text-xl font-semibold text-slate-900">{title}</h3>
+                <p className="relative mt-2 text-sm text-slate-600">{desc}</p>
+                <span className="relative mt-6 inline-flex items-center gap-1 text-sm font-semibold text-blue-600 group-hover:text-blue-700">
+                  {cta}
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </span>
+              </>
+            );
+
+            return external ? (
+              <a key={href} href={href} target="_blank" rel="noopener noreferrer" className={className}>
+                {content}
+              </a>
+            ) : (
+              <Link key={href} href={href} className={className}>
+                {content}
+              </Link>
+            );
+          })}
         </div>
       </div>
     </section>
