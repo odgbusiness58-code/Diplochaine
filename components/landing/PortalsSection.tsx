@@ -23,12 +23,12 @@ const portals = [
     accent: "from-emerald-500 to-teal-600",
   },
   {
-    href: "https://github.com/NockiProgramTECH/DiploChaineVerify",
+    href: "https://raw.githubusercontent.com/NockiProgramTECH/DiploChaineVerify/main/diplochaine.apk",
     external: true,
     icon: Smartphone,
     title: "App recruteurs",
-    desc: "Application mobile Flutter pour scanner un QR code en entretien.",
-    cta: "Voir l'application",
+    desc: "Application mobile pour scanner un QR code en entretien.",
+    cta: "Télécharger l'app (Android)",
     accent: "from-amber-500 to-orange-600",
   },
 ];
