@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Award,
   CheckCircle2,
@@ -440,9 +440,16 @@ function KeysModal({ onClose }: { onClose: () => void }) {
 
 // ─── Page principale ──────────────────────────────────────────────────────────
 export default function EtablissementPage() {
-  const { university, logout, refresh } = useAuth();
+  const router = useRouter();
+  const { university, isLoading, logout, refresh } = useAuth();
   const searchParams = useSearchParams();
   const isWelcome = searchParams.get("welcome") === "1";
+
+  useEffect(() => {
+    if (!isLoading && !university) {
+      router.replace("/auth/login?next=/etablissement");
+    }
+  }, [isLoading, university, router]);
 
   const [diplomas, setDiplomas] = useState<Diploma[]>([]);
   const [loading, setLoading] = useState(true);

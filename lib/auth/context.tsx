@@ -33,8 +33,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (payload: LoginPayload) => {
     const res = await authApi.login(payload);
-    saveSession({ access: res.access, refresh: res.refresh }, res.university);
-    setUniversity(res.university);
+    saveSession({ access: res.access, refresh: res.refresh });
+    const uni = res.university ?? await authApi.profile().catch(() => null);
+    if (uni) saveSession({ access: res.access, refresh: res.refresh }, uni);
+    setUniversity(uni ?? null);
   }, []);
 
   const register = useCallback(async (payload: RegisterPayload) => {
