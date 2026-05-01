@@ -181,12 +181,21 @@ function IssueModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (d
                   onChange={update("field_of_study")}
                   placeholder="Génie Logiciel"
                 />
-                <Input
-                  label="Mention"
-                  value={form.mention}
-                  onChange={update("mention")}
-                  placeholder="Très Bien"
-                />
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium text-slate-700">Mention</label>
+                  <select
+                    value={form.mention}
+                    onChange={(e) => setForm((s) => ({ ...s, mention: e.target.value }))}
+                    className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all bg-white"
+                  >
+                    <option value="">— Sans mention —</option>
+                    <option value="passable">Passable</option>
+                    <option value="assez_bien">Assez Bien</option>
+                    <option value="bien">Bien</option>
+                    <option value="tres_bien">Très Bien</option>
+                    <option value="felicitations">Félicitations du jury</option>
+                  </select>
+                </div>
               </div>
               <Input
                 label="Date d'obtention"
