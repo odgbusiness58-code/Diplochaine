@@ -47,7 +47,8 @@ export interface Diploma {
 }
 
 export interface IssueDiplomaPayload {
-  student_full_name: string;
+  student_first_name: string;
+  student_last_name: string;
   student_birth_date: string;
   student_id_number?: string;
   diploma_title: string;

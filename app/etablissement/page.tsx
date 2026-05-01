@@ -47,7 +47,8 @@ function fmt(d: string) {
 
 // ─── Issue form ─────────────────────────────────────────────────────────────
 const emptyForm: IssueDiplomaPayload = {
-  student_full_name: "",
+  student_first_name: "",
+  student_last_name: "",
   student_birth_date: "",
   student_id_number: "",
   diploma_title: "",
@@ -70,7 +71,8 @@ function IssueModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (d
     setSubmitting(true);
     try {
       const payload: IssueDiplomaPayload = {
-        student_full_name: form.student_full_name.trim(),
+        student_first_name: form.student_first_name.trim(),
+        student_last_name: form.student_last_name.trim(),
         student_birth_date: form.student_birth_date,
         diploma_title: form.diploma_title.trim(),
         graduation_date: form.graduation_date,
@@ -127,13 +129,22 @@ function IssueModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (d
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Informations étudiant</p>
             <div className="space-y-4">
-              <Input
-                label="Nom complet de l'étudiant"
-                required
-                value={form.student_full_name}
-                onChange={update("student_full_name")}
-                placeholder="SAWADOGO Amidou"
-              />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Input
+                  label="Nom de famille"
+                  required
+                  value={form.student_last_name}
+                  onChange={update("student_last_name")}
+                  placeholder="SAWADOGO"
+                />
+                <Input
+                  label="Prénom"
+                  required
+                  value={form.student_first_name}
+                  onChange={update("student_first_name")}
+                  placeholder="Amidou"
+                />
+              </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Input
                   label="Date de naissance"
