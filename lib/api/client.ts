@@ -6,7 +6,7 @@ import {
   updateAccessToken,
 } from "@/lib/auth/storage";
 
-const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "https://unixdev38.pythonanywhere.com/api").replace(/\/$/, "");
+const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "/api/proxy").replace(/\/$/, "");
 
 interface RequestOptions {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
