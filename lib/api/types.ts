@@ -95,6 +95,31 @@ export interface VerifyResult {
   };
 }
 
+export interface ScanVerifyResult {
+  valid: boolean;
+  reason?: string;
+  message?: string;
+  revocation_reason?: string;
+  diploma?: {
+    id: string;
+    student: string;
+    degree: string;
+    field?: string;
+    mention?: string;
+    year?: number;
+    issued_at?: string;
+  };
+  university?: {
+    name: string;
+    acronym?: string;
+    is_verified: boolean;
+  };
+  blockchain?: {
+    anchored: boolean;
+    tx_hash?: string;
+  };
+}
+
 export class ApiError extends Error {
   status: number;
   data: unknown;

@@ -32,6 +32,7 @@ import { diplomasApi } from "@/lib/api/diplomas";
 import { authApi } from "@/lib/api/auth";
 import { useAuth } from "@/lib/auth/context";
 import type { Diploma, IssueDiplomaPayload, UniversityKeys } from "@/lib/api/types";
+import { ApiError } from "@/lib/api/types";
 
 // ─── helpers ───────────────────────────────────────────────────────────────
 function statusTone(s: Diploma["status"]) {
@@ -68,11 +69,32 @@ function IssueModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (d
     setError(null);
     setSubmitting(true);
     try {
-      const diploma = await diplomasApi.issue(form);
+      const payload: IssueDiplomaPayload = {
+        student_full_name: form.student_full_name.trim(),
+        student_birth_date: form.student_birth_date,
+        diploma_title: form.diploma_title.trim(),
+        graduation_date: form.graduation_date,
+        ...(form.student_id_number?.trim() ? { student_id_number: form.student_id_number.trim() } : {}),
+        ...(form.field_of_study?.trim() ? { field_of_study: form.field_of_study.trim() } : {}),
+        ...(form.mention?.trim() ? { mention: form.mention.trim() } : {}),
+      };
+      const diploma = await diplomasApi.issue(payload);
       onSuccess(diploma);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Erreur lors de l'émission.";
-      setError(msg);
+      if (err instanceof ApiError) {
+        const data = err.data as Record<string, unknown> | null;
+        if (data && typeof data === "object") {
+          const firstKey = Object.keys(data)[0];
+          const value = data[firstKey];
+          const raw = Array.isArray(value) ? String(value[0]) : String(value ?? err.message);
+          setError(`${firstKey} : ${raw}`);
+        } else {
+          setError(err.message || "Erreur lors de l'émission.");
+        }
+      } else {
+        const msg = err instanceof Error ? err.message : "Erreur lors de l'émission.";
+        setError(msg);
+      }
     } finally {
       setSubmitting(false);
     }
