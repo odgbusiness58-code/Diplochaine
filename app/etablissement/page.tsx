@@ -53,7 +53,7 @@ const emptyForm = {
   student_id_number: "",
   degree_title: "",
   field_of_study: "",
-  graduation_year: new Date().getFullYear(),
+  graduation_date: "",
   mention: "",
 };
 
@@ -62,7 +62,7 @@ function IssueModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (d
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const update = (k: keyof IssueDiplomaPayload) => (e: React.ChangeEvent<HTMLInputElement>) =>
+  const update = (k: keyof typeof emptyForm) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((s) => ({ ...s, [k]: e.target.value }));
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -75,7 +75,7 @@ function IssueModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (d
         student_last_name: form.student_last_name.trim(),
         student_birth_date: form.student_birth_date,
         degree_title: form.degree_title.trim(),
-        graduation_year: Number(form.graduation_year),
+        graduation_year: new Date(form.graduation_date).getFullYear(),
         ...(form.student_id_number?.trim() ? { student_id_number: form.student_id_number.trim() } : {}),
         ...(form.field_of_study?.trim() ? { field_of_study: form.field_of_study.trim() } : {}),
         ...(form.mention?.trim() ? { mention: form.mention.trim() } : {}),
@@ -155,7 +155,7 @@ function IssueModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (d
                 />
                 <Input
                   label="N° matricule (optionnel)"
-                  value={form.student_id_number}
+                  value={form.student_id_number ?? ""}
                   onChange={update("student_id_number")}
                   placeholder="2021BF001"
                 />
@@ -197,18 +197,13 @@ function IssueModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (d
                   </select>
                 </div>
               </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-slate-700">Année d&apos;obtention</label>
-                <input
-                  type="number"
-                  required
-                  min={1950}
-                  max={new Date().getFullYear()}
-                  value={form.graduation_year}
-                  onChange={(e) => setForm((s) => ({ ...s, graduation_year: parseInt(e.target.value) || s.graduation_year }))}
-                  className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-                />
-              </div>
+              <Input
+                label="Date d'obtention"
+                type="date"
+                required
+                value={form.graduation_date}
+                onChange={update("graduation_date")}
+              />
             </div>
           </div>
 
