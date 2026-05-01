@@ -51,7 +51,7 @@ const emptyForm: IssueDiplomaPayload = {
   student_last_name: "",
   student_birth_date: "",
   student_id_number: "",
-  diploma_title: "",
+  degree_title: "",
   field_of_study: "",
   graduation_date: "",
   mention: "",
@@ -74,7 +74,7 @@ function IssueModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (d
         student_first_name: form.student_first_name.trim(),
         student_last_name: form.student_last_name.trim(),
         student_birth_date: form.student_birth_date,
-        diploma_title: form.diploma_title.trim(),
+        degree_title: form.degree_title.trim(),
         graduation_date: form.graduation_date,
         ...(form.student_id_number?.trim() ? { student_id_number: form.student_id_number.trim() } : {}),
         ...(form.field_of_study?.trim() ? { field_of_study: form.field_of_study.trim() } : {}),
@@ -170,8 +170,8 @@ function IssueModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (d
               <Input
                 label="Intitulé du diplôme"
                 required
-                value={form.diploma_title}
-                onChange={update("diploma_title")}
+                value={form.degree_title}
+                onChange={update("degree_title")}
                 placeholder="Licence en Informatique"
               />
               <div className="grid gap-4 sm:grid-cols-2">

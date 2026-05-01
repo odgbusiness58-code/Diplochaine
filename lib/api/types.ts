@@ -51,7 +51,7 @@ export interface IssueDiplomaPayload {
   student_last_name: string;
   student_birth_date: string;
   student_id_number?: string;
-  diploma_title: string;
+  degree_title: string;
   field_of_study?: string;
   graduation_date: string;
   mention?: string;
