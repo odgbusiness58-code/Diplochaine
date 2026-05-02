@@ -322,7 +322,7 @@ function DiplomaRow({ diploma, universityName, onRevoke }: { diploma: Diploma; u
             )}
             <div>
               <p className="text-xs text-slate-400 mb-0.5">Date obtention</p>
-              <p className="font-medium text-slate-800">{fmt(diploma.graduation_date)}</p>
+              <p className="font-medium text-slate-800">{getGraduationDisplay(diploma)}</p>
             </div>
             {diploma.student_birth_date && (
               <div>
@@ -336,10 +336,6 @@ function DiplomaRow({ diploma, universityName, onRevoke }: { diploma: Diploma; u
                 <p className="font-medium text-slate-800">{diploma.student_id_number}</p>
               </div>
             )}
-            <div>
-                <p className="text-xs text-slate-400 mb-0.5">Année obtention</p>
-                <p className="font-medium text-slate-800">{getGraduationDisplay(diploma)}</p>
-              </div>
             {diploma.issued_at && (
               <div>
                 <p className="text-xs text-slate-400 mb-0.5">Émis le</p>
