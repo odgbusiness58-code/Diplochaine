@@ -96,6 +96,7 @@ function IssueModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (d
         ...(form.mention?.trim() ? { mention: form.mention.trim() } : {}),
       };
       const diploma = await diplomasApi.issue(payload);
+      console.log("[DiploChain] Diploma issued:", diploma);
       onSuccess(diploma);
     } catch (err: unknown) {
       if (err instanceof ApiError) {
@@ -259,6 +260,7 @@ function DiplomaRow({ diploma, universityName, onRevoke }: { diploma: Diploma; u
   const [showQr, setShowQr] = useState(false);
   const [copied, setCopied] = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
 
   const verifyUrl = typeof window !== "undefined"
     ? `${window.location.origin}/verifier/${diploma.id}`
@@ -370,8 +372,10 @@ function DiplomaRow({ diploma, universityName, onRevoke }: { diploma: Diploma; u
                 variant="secondary"
                 disabled={generatingPdf}
                 onClick={async () => {
+                  setPdfError(null);
                   setGeneratingPdf(true);
                   try { await generateDiplomaPDF(diploma, universityName); }
+                  catch (e) { setPdfError(e instanceof Error ? e.message : "Erreur PDF"); }
                   finally { setGeneratingPdf(false); }
                 }}
               >
@@ -380,6 +384,9 @@ function DiplomaRow({ diploma, universityName, onRevoke }: { diploma: Diploma; u
                   : <Download className="h-3.5 w-3.5" />}
                 PDF
               </Button>
+            )}
+            {pdfError && (
+              <span className="text-xs text-red-600 self-center">{pdfError}</span>
             )}
             <Button
               size="sm"
