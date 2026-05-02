@@ -355,16 +355,16 @@ function DiplomaRow({ diploma, onRevoke }: { diploma: Diploma; onRevoke: (id: st
 
           {/* Actions */}
           <div className="flex flex-wrap gap-2">
-            {diploma.pdf_url && (
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => window.open(diploma.pdf_url!, "_blank")}
-              >
-                <Download className="h-3.5 w-3.5" />
-                PDF
-              </Button>
-            )}
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={!diploma.pdf_url}
+              onClick={() => diploma.pdf_url && window.open(diploma.pdf_url, "_blank")}
+              title={diploma.pdf_url ? "Télécharger le PDF" : "PDF non disponible"}
+            >
+              <Download className="h-3.5 w-3.5" />
+              PDF
+            </Button>
             <Button
               size="sm"
               variant="ghost"
