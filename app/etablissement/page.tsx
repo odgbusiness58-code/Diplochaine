@@ -44,9 +44,9 @@ function statusLabel(s: Diploma["status"]) {
 }
 function fmt(d?: string | number | null) {
   if (!d) return "—";
-  if (typeof d === "number") return String(d);
+  if (typeof d === "number") return isNaN(d) ? "—" : String(d);
   const dt = new Date(d);
-  if (isNaN(dt.getTime())) return String(d);
+  if (isNaN(dt.getTime())) return "—";
   return dt.toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" });
 }
 
