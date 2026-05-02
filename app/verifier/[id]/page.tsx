@@ -21,7 +21,19 @@ import {
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { diplomasApi } from "@/lib/api/diplomas";
+import { ApiError } from "@/lib/api/types";
 import type { ScanVerifyResult } from "@/lib/api/types";
+
+function getVerifyErrorMessage(err: unknown): string {
+  if (err instanceof ApiError) {
+    if (err.status === 404) return "Diplôme introuvable. Cet identifiant n'existe pas dans le registre DiploChain.";
+    if (err.status === 400) return "Identifiant invalide ou diplôme introuvable dans le registre DiploChain.";
+    if (err.status === 0) return "Erreur réseau. Vérifiez votre connexion et réessayez.";
+    return err.message || "Erreur lors de la vérification.";
+  }
+  if (err instanceof Error) return err.message;
+  return "Erreur de vérification.";
+}
 
 function CheckRow({ label, value }: { label: string; value?: boolean }) {
   if (value === undefined) return null;
@@ -52,7 +64,7 @@ export default function VerifierDetailPage() {
     const start = Date.now();
     diplomasApi.verifyByScan(id)
       .then((res) => { setElapsed(Date.now() - start); setResult(res); })
-      .catch((e: Error) => setError(e.message))
+      .catch((e: unknown) => setError(getVerifyErrorMessage(e)))
       .finally(() => setLoading(false));
   }, [id]);
 

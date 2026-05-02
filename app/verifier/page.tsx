@@ -21,7 +21,19 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/Button";
 import { diplomasApi } from "@/lib/api/diplomas";
+import { ApiError } from "@/lib/api/types";
 import type { ScanVerifyResult, VerifyResult } from "@/lib/api/types";
+
+function getVerifyErrorMessage(err: unknown): string {
+  if (err instanceof ApiError) {
+    if (err.status === 404) return "Diplôme introuvable. Cet identifiant n'existe pas dans le registre.";
+    if (err.status === 400) return "Identifiant invalide ou diplôme introuvable dans le registre DiploChain.";
+    if (err.status === 0) return "Erreur réseau. Vérifiez votre connexion et réessayez.";
+    return err.message || "Erreur lors de la vérification.";
+  }
+  if (err instanceof Error) return err.message;
+  return "Erreur de vérification.";
+}
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 const REASON_FR: Record<string, string> = {
@@ -306,8 +318,7 @@ export default function VerifierPage() {
       }
       setElapsed(Date.now() - start);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Erreur de vérification.";
-      setError(msg);
+      setError(getVerifyErrorMessage(err));
     } finally {
       setLoading(false);
     }
