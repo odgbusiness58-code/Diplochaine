@@ -31,6 +31,7 @@ import { QrCode } from "@/components/QrCode";
 import { diplomasApi } from "@/lib/api/diplomas";
 import { authApi } from "@/lib/api/auth";
 import { useAuth } from "@/lib/auth/context";
+import { generateDiplomaPDF } from "@/lib/generateDiplomaPDF";
 import type { Diploma, IssueDiplomaPayload, UniversityKeys } from "@/lib/api/types";
 import { ApiError } from "@/lib/api/types";
 
@@ -250,13 +251,14 @@ function IssueModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (d
 }
 
 // ─── Diploma Row ─────────────────────────────────────────────────────────────
-function DiplomaRow({ diploma, onRevoke }: { diploma: Diploma; onRevoke: (id: string) => void }) {
+function DiplomaRow({ diploma, universityName, onRevoke }: { diploma: Diploma; universityName: string; onRevoke: (id: string) => void }) {
   const [expanded, setExpanded] = useState(false);
   const [revoking, setRevoking] = useState(false);
   const [reason, setReason] = useState("");
   const [showRevoke, setShowRevoke] = useState(false);
   const [showQr, setShowQr] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
 
   const verifyUrl = typeof window !== "undefined"
     ? `${window.location.origin}/verifier/${diploma.id}`
@@ -358,11 +360,17 @@ function DiplomaRow({ diploma, onRevoke }: { diploma: Diploma; onRevoke: (id: st
             <Button
               size="sm"
               variant="secondary"
-              disabled={!diploma.pdf_url}
-              onClick={() => diploma.pdf_url && window.open(diploma.pdf_url, "_blank")}
-              title={diploma.pdf_url ? "Télécharger le PDF" : "PDF non disponible"}
+              disabled={generatingPdf}
+              onClick={async () => {
+                if (diploma.pdf_url) { window.open(diploma.pdf_url, "_blank"); return; }
+                setGeneratingPdf(true);
+                try { await generateDiplomaPDF(diploma, universityName); }
+                finally { setGeneratingPdf(false); }
+              }}
             >
-              <Download className="h-3.5 w-3.5" />
+              {generatingPdf
+                ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                : <Download className="h-3.5 w-3.5" />}
               PDF
             </Button>
             <Button
@@ -681,7 +689,7 @@ export default function EtablissementPage() {
                 </div>
               )}
               {!loading && filtered.map((d) => (
-                <DiplomaRow key={d.id} diploma={d} onRevoke={handleRevoke} />
+                <DiplomaRow key={d.id} diploma={d} universityName={university?.name ?? "DiploChain"} onRevoke={handleRevoke} />
               ))}
             </div>
           </div>
