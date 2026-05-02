@@ -31,7 +31,6 @@ import { QrCode } from "@/components/QrCode";
 import { diplomasApi } from "@/lib/api/diplomas";
 import { authApi } from "@/lib/api/auth";
 import { useAuth } from "@/lib/auth/context";
-import { generateDiplomaPDF } from "@/lib/generateDiplomaPDF";
 import type { Diploma, IssueDiplomaPayload, IssueResponse, UniversityKeys } from "@/lib/api/types";
 import { ApiError } from "@/lib/api/types";
 
@@ -258,8 +257,6 @@ function DiplomaRow({ diploma, universityName, onRevoke }: { diploma: Diploma; u
   const [showRevoke, setShowRevoke] = useState(false);
   const [showQr, setShowQr] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [generatingPdf, setGeneratingPdf] = useState(false);
-  const [pdfError, setPdfError] = useState<string | null>(null);
 
   const verifyUrl = typeof window !== "undefined"
     ? `${window.location.origin}/verifier/${diploma.id}`
@@ -354,39 +351,16 @@ function DiplomaRow({ diploma, universityName, onRevoke }: { diploma: Diploma; u
 
           {/* Actions */}
           <div className="flex flex-wrap gap-2">
-            {diploma.pdf_url ? (
-              <a
-                href={diploma.pdf_url.startsWith("http") ? diploma.pdf_url : `https://unixdev38.pythonanywhere.com${diploma.pdf_url.startsWith("/") ? "" : "/"}${diploma.pdf_url}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                download
-                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition-colors"
-              >
-                <Download className="h-3.5 w-3.5" />
-                PDF
-              </a>
-            ) : (
-              <Button
-                size="sm"
-                variant="secondary"
-                disabled={generatingPdf}
-                onClick={async () => {
-                  setPdfError(null);
-                  setGeneratingPdf(true);
-                  try { await generateDiplomaPDF(diploma, universityName); }
-                  catch (e) { setPdfError(e instanceof Error ? e.message : "Erreur PDF"); }
-                  finally { setGeneratingPdf(false); }
-                }}
-              >
-                {generatingPdf
-                  ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  : <Download className="h-3.5 w-3.5" />}
-                PDF
-              </Button>
-            )}
-            {pdfError && (
-              <span className="text-xs text-red-600 self-center">{pdfError}</span>
-            )}
+            <a
+              href={diploma.pdf_url ?? `https://unixdev38.pythonanywhere.com/media/diplomas/pdf/diploma_${diploma.id}.pdf`}
+              target="_blank"
+              rel="noopener noreferrer"
+              download
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition-colors"
+            >
+              <Download className="h-3.5 w-3.5" />
+              PDF
+            </a>
             <Button
               size="sm"
               variant="ghost"
