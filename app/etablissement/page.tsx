@@ -353,22 +353,34 @@ function DiplomaRow({ diploma, universityName, onRevoke }: { diploma: Diploma; u
 
           {/* Actions */}
           <div className="flex flex-wrap gap-2">
-            <Button
-              size="sm"
-              variant="secondary"
-              disabled={generatingPdf}
-              onClick={async () => {
-                if (diploma.pdf_url) { window.open(diploma.pdf_url, "_blank"); return; }
-                setGeneratingPdf(true);
-                try { await generateDiplomaPDF(diploma, universityName); }
-                finally { setGeneratingPdf(false); }
-              }}
-            >
-              {generatingPdf
-                ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                : <Download className="h-3.5 w-3.5" />}
-              PDF
-            </Button>
+            {diploma.pdf_url ? (
+              <a
+                href={diploma.pdf_url.startsWith("http") ? diploma.pdf_url : `https://unixdev38.pythonanywhere.com${diploma.pdf_url.startsWith("/") ? "" : "/"}${diploma.pdf_url}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                download
+                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition-colors"
+              >
+                <Download className="h-3.5 w-3.5" />
+                PDF
+              </a>
+            ) : (
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={generatingPdf}
+                onClick={async () => {
+                  setGeneratingPdf(true);
+                  try { await generateDiplomaPDF(diploma, universityName); }
+                  finally { setGeneratingPdf(false); }
+                }}
+              >
+                {generatingPdf
+                  ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  : <Download className="h-3.5 w-3.5" />}
+                PDF
+              </Button>
+            )}
             <Button
               size="sm"
               variant="ghost"
