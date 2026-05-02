@@ -32,7 +32,7 @@ import { diplomasApi } from "@/lib/api/diplomas";
 import { authApi } from "@/lib/api/auth";
 import { useAuth } from "@/lib/auth/context";
 import { generateDiplomaPDF } from "@/lib/generateDiplomaPDF";
-import type { Diploma, IssueDiplomaPayload, UniversityKeys } from "@/lib/api/types";
+import type { Diploma, IssueDiplomaPayload, IssueResponse, UniversityKeys } from "@/lib/api/types";
 import { ApiError } from "@/lib/api/types";
 
 // ─── helpers ───────────────────────────────────────────────────────────────
@@ -72,7 +72,7 @@ const emptyForm = {
   mention: "",
 };
 
-function IssueModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (d: Diploma) => void }) {
+function IssueModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (r: IssueResponse) => void }) {
   const [form, setForm] = useState(emptyForm);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -95,9 +95,8 @@ function IssueModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (d
         ...(form.field_of_study?.trim() ? { field_of_study: form.field_of_study.trim() } : {}),
         ...(form.mention?.trim() ? { mention: form.mention.trim() } : {}),
       };
-      const diploma = await diplomasApi.issue(payload);
-      console.log("[DiploChain] Diploma issued:", diploma);
-      onSuccess(diploma);
+      const response = await diplomasApi.issue(payload);
+      onSuccess(response);
     } catch (err: unknown) {
       if (err instanceof ApiError) {
         const data = err.data as Record<string, unknown> | null;
@@ -540,6 +539,7 @@ export default function EtablissementPage() {
   const [showKeys, setShowKeys] = useState(false);
   const [welcome, setWelcome] = useState(isWelcome);
   const [filter, setFilter] = useState<"all" | "signed" | "revoked" | "draft">("all");
+  const [lastPdfUrl, setLastPdfUrl] = useState<string | null>(null);
 
   const loadDiplomas = useCallback(async () => {
     setLoading(true);
@@ -555,9 +555,10 @@ export default function EtablissementPage() {
 
   useEffect(() => { loadDiplomas(); }, [loadDiplomas]);
 
-  const handleIssueSuccess = (d: Diploma) => {
-    setDiplomas((prev) => [d, ...prev]);
+  const handleIssueSuccess = (r: IssueResponse) => {
     setShowIssue(false);
+    if (r.pdf_url) setLastPdfUrl(r.pdf_url);
+    loadDiplomas();
   };
 
   const handleRevoke = (id: string) => {
@@ -593,6 +594,34 @@ export default function EtablissementPage() {
               <button onClick={() => setWelcome(false)} className="ml-4 text-emerald-500 hover:text-emerald-700">
                 <X className="h-4 w-4" />
               </button>
+            </div>
+          )}
+
+          {/* Bannière PDF après émission */}
+          {lastPdfUrl && (
+            <div className="mb-4 flex items-center justify-between gap-4 rounded-xl bg-emerald-50 border border-emerald-200 px-5 py-4">
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+                <div>
+                  <p className="font-semibold text-emerald-900">Diplôme émis avec succès !</p>
+                  <p className="text-sm text-emerald-700">Le PDF officiel est disponible au téléchargement.</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <a
+                  href={lastPdfUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  download
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors"
+                >
+                  <Download className="h-4 w-4" />
+                  Télécharger PDF
+                </a>
+                <button onClick={() => setLastPdfUrl(null)} className="text-emerald-500 hover:text-emerald-700">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
             </div>
           )}
 

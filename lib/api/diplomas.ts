@@ -1,11 +1,11 @@
 import { api } from "@/lib/api/client";
-import type { Diploma, IssueDiplomaPayload, ScanVerifyResult, VerifyResult } from "@/lib/api/types";
+import type { Diploma, IssueDiplomaPayload, IssueResponse, ScanVerifyResult, VerifyResult } from "@/lib/api/types";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export const diplomasApi = {
   issue: (payload: IssueDiplomaPayload) =>
-    api.post<Diploma>("/diplomas/issue/", payload),
+    api.post<IssueResponse>("/diplomas/issue/", payload),
 
   listMine: () => api.get<Diploma[]>("/diplomas/"),
 

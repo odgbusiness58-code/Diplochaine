@@ -48,6 +48,20 @@ export interface Diploma {
   revocation_reason?: string;
 }
 
+export interface IssueResponse {
+  message: string;
+  diploma_id: string;
+  student: string;
+  degree: string;
+  file_hash: string;
+  rsa_signature: string;
+  eth_signature: string;
+  university_address: string;
+  university_fingerprint: string;
+  status: DiplomaStatus;
+  pdf_url: string;
+}
+
 export interface IssueDiplomaPayload {
   student_first_name: string;
   student_last_name: string;
